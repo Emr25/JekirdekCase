@@ -1,5 +1,6 @@
 using Application.Services;
 using Infrastructure.Data;
+using Infrastructure.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -16,6 +17,16 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 // Dependency Injection
 builder.Services.AddScoped<IUserService, UserService>();
+
+builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
+builder.Services.AddScoped<ICustomerService, CustomerService>();
+
+
+
+// AutoMapper
+builder.Services.AddAutoMapper(typeof(Program));
+
+
 
 // Swagger + JWT Auth ayarlarý
 builder.Services.AddSwaggerGen(c =>
@@ -44,6 +55,9 @@ builder.Services.AddSwaggerGen(c =>
         }
     });
 });
+
+
+
 
 // JWT Authentication ayarlarý
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
