@@ -5,59 +5,23 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System;
-using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace Application.Services
 {
     public class UserService : IUserService
     {
-
         private readonly AppDbContext _context;
         private readonly IConfiguration _configuration;
 
-        public UserService(AppDbContext context , IConfiguration configuration)
+        public UserService(AppDbContext context, IConfiguration configuration)
         {
-            _configuration = configuration;
             _context = context;
-        }
-
-        public async Task<string> LoginAsync(UserLoginDto userLoginDto)
-        {
-            var user = await _context.Users.FirstOrDefaultAsync(u =>
-                u.Username == userLoginDto.Username && u.Password == userLoginDto.Password);
-
-            if (user == null)
-                return null;
-
-            //CLAİM
-            var claims = new[]
-           {
-                new Claim(ClaimTypes.Name, user.Username),
-                new Claim(ClaimTypes.Role, user.Role),
-                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString())
-            };
-
-
-
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-
-            //TOKEN
-            var token = new JwtSecurityToken(
-               issuer: _configuration["Jwt:Issuer"],
-               audience: _configuration["Jwt:Audience"],
-               claims: claims,
-               expires: DateTime.UtcNow.AddHours(1),
-               signingCredentials: creds
-           );
-
-            return new JwtSecurityTokenHandler().WriteToken(token);
-
+            _configuration = configuration;
         }
 
         public async Task<bool> RegisterAsync(UserRegisterDto userRegisterDto)
@@ -65,10 +29,12 @@ namespace Application.Services
             var exists = await _context.Users.AnyAsync(u => u.Username == userRegisterDto.Username);
             if (exists) return false;
 
+            var passwordHash = ComputeSha256Hash(userRegisterDto.Password);
+
             var user = new User
             {
                 Username = userRegisterDto.Username,
-                Password = userRegisterDto.Password, 
+                PasswordHash = passwordHash,
                 Role = userRegisterDto.Role,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow
@@ -77,7 +43,52 @@ namespace Application.Services
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
             return true;
+        }
 
+        public async Task<string> LoginAsync(UserLoginDto userLoginDto)
+        {
+            var passwordHash = ComputeSha256Hash(userLoginDto.Password);
+
+            var user = await _context.Users.FirstOrDefaultAsync(u =>
+                u.Username == userLoginDto.Username && u.PasswordHash == passwordHash);
+
+            if (user == null)
+                return null;
+
+            return GenerateJwtToken(user);
+        }
+
+        private string GenerateJwtToken(User user)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.UTF8.GetBytes(_configuration["JwtSettings:SecretKey"]);
+            var expiryMinutes = int.Parse(_configuration["JwtSettings:ExpiryMinutes"]);
+
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(new[]
+                {
+                    new Claim(ClaimTypes.Name, user.Username),
+                    new Claim(ClaimTypes.Role, user.Role)
+                }),
+                Expires = DateTime.UtcNow.AddMinutes(expiryMinutes),
+                Issuer = _configuration["JwtSettings:Issuer"],
+                Audience = _configuration["JwtSettings:Audience"],
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+            };
+
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            return tokenHandler.WriteToken(token);
+        }
+
+        private string ComputeSha256Hash(string rawData)
+        {
+            using (var sha256 = SHA256.Create())
+            {
+                var bytes = Encoding.UTF8.GetBytes(rawData);
+                var hash = sha256.ComputeHash(bytes);
+                return Convert.ToBase64String(hash);
+            }
         }
     }
 }
