@@ -1,3 +1,4 @@
+using Application.Profiles;
 using Application.Services;
 using Infrastructure.Data;
 using Infrastructure.Repositories;
@@ -24,7 +25,7 @@ builder.Services.AddScoped<ICustomerService, CustomerService>();
 
 
 // AutoMapper
-builder.Services.AddAutoMapper(typeof(Program));
+builder.Services.AddAutoMapper(typeof(CustomerProfile));
 
 
 
