@@ -12,7 +12,7 @@ namespace Application.Services
         Task<IEnumerable<CustomerReadDto>> GetAllAsync();
         Task<IEnumerable<CustomerReadDto>> GetByNameAsync(string name);
         Task<IEnumerable<CustomerReadDto>> GetByRegionAsync(string region);
-        Task<CustomerReadDto> GetByIdAsync(Guid id);
+        Task<CustomerReadDto?> GetByIdAsync(Guid id);
         Task<CustomerReadDto> CreateAsync(CustomerCreateDto dto);
         Task<bool> UpdateAsync(Guid id, CustomerUpdateDto dto);
         Task<bool> DeleteAsync(Guid id);

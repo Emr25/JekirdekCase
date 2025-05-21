@@ -3,46 +3,42 @@ using Application.Services;
 using AutoMapper;
 using Domain.Entities;
 using Infrastructure.Data;
+using Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
+
 
 public class CustomerService : ICustomerService
 {
-    private readonly AppDbContext _context;
+    private readonly ICustomerRepository _repo;
     private readonly IMapper _mapper;
 
-    public CustomerService(AppDbContext context, IMapper mapper)
+    public CustomerService(ICustomerRepository repo, IMapper mapper)
     {
-        _context = context;
+        _repo = repo;
         _mapper = mapper;
     }
 
     public async Task<IEnumerable<CustomerReadDto>> GetAllAsync()
     {
-        var customers = await _context.Customers.ToListAsync();
+        var customers = await _repo.GetAllAsync();
         return _mapper.Map<IEnumerable<CustomerReadDto>>(customers);
     }
 
     public async Task<IEnumerable<CustomerReadDto>> GetByNameAsync(string name)
     {
-        var customers = await _context.Customers
-            .Where(c => (c.FirstName + " " + c.LastName).ToLower().Contains(name.ToLower()))
-            .ToListAsync();
-
+        var customers = await _repo.GetByNameAsync(name);
         return _mapper.Map<IEnumerable<CustomerReadDto>>(customers);
     }
 
     public async Task<IEnumerable<CustomerReadDto>> GetByRegionAsync(string region)
     {
-        var customers = await _context.Customers
-            .Where(c => c.Region.ToLower() == region.ToLower())
-            .ToListAsync();
-
+        var customers = await _repo.GetByRegionAsync(region);
         return _mapper.Map<IEnumerable<CustomerReadDto>>(customers);
     }
 
-    public async Task<CustomerReadDto> GetByIdAsync(Guid id)
+    public async Task<CustomerReadDto?> GetByIdAsync(Guid id)
     {
-        var customer = await _context.Customers.FindAsync(id);
+        var customer = await _repo.GetByIdAsync(id);
         return customer == null ? null : _mapper.Map<CustomerReadDto>(customer);
     }
 
@@ -51,30 +47,30 @@ public class CustomerService : ICustomerService
         var customer = _mapper.Map<Customer>(dto);
         customer.RegistrationDate = DateTime.UtcNow;
 
-        _context.Customers.Add(customer);
-        await _context.SaveChangesAsync();
+        await _repo.AddAsync(customer);
+        await _repo.SaveChangesAsync();
 
         return _mapper.Map<CustomerReadDto>(customer);
     }
 
     public async Task<bool> UpdateAsync(Guid id, CustomerUpdateDto dto)
     {
-        var existing = await _context.Customers.FindAsync(id);
+        var existing = await _repo.GetByIdAsync(id);
         if (existing == null) return false;
 
         _mapper.Map(dto, existing);
-        _context.Customers.Update(existing);
-        await _context.SaveChangesAsync();
+        _repo.Update(existing);
+        await _repo.SaveChangesAsync();
         return true;
     }
 
     public async Task<bool> DeleteAsync(Guid id)
     {
-        var customer = await _context.Customers.FindAsync(id);
-        if (customer == null) return false;
+        var existing = await _repo.GetByIdAsync(id);
+        if (existing == null) return false;
 
-        _context.Customers.Remove(customer);
-        await _context.SaveChangesAsync();
+        _repo.Delete(existing);
+        await _repo.SaveChangesAsync();
         return true;
     }
 }
