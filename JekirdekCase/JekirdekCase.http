@@ -1,0 +1,6 @@
+@JekirdekCase_HostAddress = http://localhost:5043
+
+GET {{JekirdekCase_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
