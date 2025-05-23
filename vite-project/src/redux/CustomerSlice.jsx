@@ -2,7 +2,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 
-const API_URL = 'https://your-api-url/api/customers';
+const API_URL = 'http://localhost:5043/api/Customer';
 
 // Müşterileri listele
 export const fetchCustomers = createAsyncThunk('customers/fetchCustomers', async (filters = {}) => {

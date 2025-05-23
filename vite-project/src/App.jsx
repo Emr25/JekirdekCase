@@ -8,6 +8,7 @@ import Register from './components/Register';
 import { useDispatch, useSelector } from 'react-redux';
 import { setUser } from './redux/AuthSlice ';
 import { Navigate } from 'react-router-dom';
+import CustomerList from './components/CustomerList ';
 
 
 
@@ -29,7 +30,7 @@ const App = () => {
       <Header />
       <Routes>
         <Route path="/login" element={<Login />} />
-
+        <Route path="/Customer" element={<CustomerList />} />
         <Route path="/register" element={user ? <Login /> : <Register />} />
 
 
