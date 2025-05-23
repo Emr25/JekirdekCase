@@ -1,5 +1,5 @@
 import { configureStore } from '@reduxjs/toolkit';
-import authReducer from '../features/auth/authSlice.jsx';
+import authReducer from '../redux/AuthSlice ';
 import customersReducer from '../features/customers/customersSlice';
 
 export const store = configureStore({
