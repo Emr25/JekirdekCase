@@ -4,12 +4,13 @@ import { useNavigate } from 'react-router-dom';
 import { registerUser } from '../redux/AuthSlice ';
 
 const Register = () => {
-    const [Email, setEmail] = useState("");
+    const [Username, setUsername] = useState("");
     const [Password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
+
     const dispatch = useDispatch();
     const navigate = useNavigate();
-    const { error, status } = useSelector((store) => store.auth);
+    const { status, error } = useSelector(store => store.auth);
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -17,7 +18,8 @@ const Register = () => {
             alert("Şifreler eşleşmiyor");
             return;
         }
-        dispatch(registerUser({ Email, Password })).then((result) => {
+
+        dispatch(registerUser({ Username, Password, Role: "User" })).then((result) => {
             if (result.meta.requestStatus === 'fulfilled') {
                 alert("Başarıyla Üye Oldunuz");
                 navigate("/");
@@ -26,57 +28,57 @@ const Register = () => {
     };
 
     return (
-        <div className="container mx-auto mt-12 px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-center">
-                <div className="w-full max-w-md">
-                    <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">Üye Ol</h2>
+        <div className="container mt-5">
+            <div className="row justify-content-center">
+                <div className="col-md-6">
+                    <h2 className="text-center mb-4">Üye Ol</h2>
+
                     {status === 'failed' && (
-                        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+                        <div className="alert alert-danger" role="alert">
                             {JSON.stringify(error)}
                         </div>
                     )}
-                    <form onSubmit={handleSubmit} className="bg-white shadow-lg rounded-lg px-8 py-6">
-                        <div className="mb-4">
-                            <label htmlFor="formBasicEmail" className="block text-gray-700 font-bold mb-2">Email adresi</label>
+
+                    <form onSubmit={handleSubmit} className="border p-4 rounded shadow-sm bg-white">
+                        <div className="mb-3">
+                            <label htmlFor="username" className="form-label">Username</label>
                             <input
-                                id="formBasicEmail"
-                                type="email"
-                                placeholder="Email girin"
-                                value={Email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                                id="username"
+                                type="text"
+                                placeholder="Username girin"
+                                value={Username}
+                                onChange={(e) => setUsername(e.target.value)}
+                                className="form-control"
+                                required
                             />
                         </div>
-                        <div className="mb-4">
-                            <label htmlFor="formBasicPassword" className="block text-gray-700 font-bold mb-2">Şifre</label>
+                        <div className="mb-3">
+                            <label htmlFor="password" className="form-label">Password</label>
                             <input
-                                id="formBasicPassword"
+                                id="password"
                                 type="password"
                                 placeholder="Şifre"
                                 value={Password}
                                 onChange={(e) => setPassword(e.target.value)}
-                                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                                className="form-control"
+                                required
                             />
                         </div>
-                        <div className="mb-4">
-                            <label htmlFor="formBasicConfirmPassword" className="block text-gray-700 font-bold mb-2">Şifreyi Onayla</label>
+                        <div className="mb-3">
+                            <label htmlFor="confirmPassword" className="form-label">Confirm Password</label>
                             <input
-                                id="formBasicConfirmPassword"
+                                id="confirmPassword"
                                 type="password"
                                 placeholder="Şifreyi Onayla"
                                 value={confirmPassword}
                                 onChange={(e) => setConfirmPassword(e.target.value)}
-                                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                                className="form-control"
+                                required
                             />
                         </div>
-                        <div className="flex items-center justify-between">
-                            <button
-                                type="submit"
-                                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-                            >
-                                Üye Ol
-                            </button>
-                        </div>
+                        <button type="submit" className="btn btn-primary w-100">
+                            Üye Ol
+                        </button>
                     </form>
                 </div>
             </div>

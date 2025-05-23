@@ -6,7 +6,7 @@ import axios from "axios";
 
 export const loginUser = createAsyncThunk("auth/login", async (userData, thunkAPI) => {
     try {
-        const response = await axios.post("http://localhost:5020/api/Auth/login", userData);
+        const response = await axios.post("http://localhost:5043/api/Auth/login", userData);
         localStorage.setItem("token", response.data.token);
         return response.data;
 
@@ -18,7 +18,7 @@ export const loginUser = createAsyncThunk("auth/login", async (userData, thunkAP
 
 export const registerUser = createAsyncThunk("auth/register", async (userData, thunkAPI) => {
     try {
-        const response = await axios.post("http://localhost:5020/api/Auth/register", userData);
+        const response = await axios.post("http://localhost:5043/api/Auth/register", userData);
         return response.data;
     } catch (error) {
         return thunkAPI.rejectWithValue(error.response.data);
@@ -41,7 +41,7 @@ export const getUser = createAsyncThunk("auth/getUser", async (_, thunkAPI) => {
         if (!token) {
             throw new Error("Token bulunamadı.");
         }
-        const response = await axios.get("http://localhost:5020/api/Auth/user-data", {
+        const response = await axios.get("http://localhost:5043/api/Auth/user-data", {
             headers: {
                 Authorization: `Bearer ${token}`,
             },
