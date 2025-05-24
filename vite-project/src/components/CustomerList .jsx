@@ -1,6 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchCustomers, deleteCustomer, addCustomer, updateCustomer } from '../redux/CustomerSlice';
+import {
+    fetchCustomers,
+    deleteCustomer,
+    addCustomer,
+    updateCustomer
+} from '../redux/CustomerSlice';
 import CustomerForm from './CustomerForm ';
 
 const CustomerList = () => {
@@ -8,7 +13,7 @@ const CustomerList = () => {
     const { customers, loading, error } = useSelector((state) => state.customer);
 
     const [filters, setFilters] = useState({
-        name: '',
+        fullName: '',
         region: '',
         fromDate: '',
         toDate: '',
@@ -28,7 +33,8 @@ const CustomerList = () => {
     };
 
     const handleInputChange = (e) => {
-        setFilters(prev => ({ ...prev, [e.target.name]: e.target.value }));
+        const { name, value } = e.target;
+        setFilters((prev) => ({ ...prev, [name]: value }));
     };
 
     const handleAddNew = () => {
@@ -58,10 +64,10 @@ const CustomerList = () => {
             <div className="row mb-3 g-3 align-items-center">
                 <div className="col-md-3">
                     <input
-                        name="name"
+                        name="fullName"
                         type="text"
                         placeholder="İsim ile ara"
-                        value={filters.name}
+                        value={filters.fullName}
                         onChange={handleInputChange}
                         className="form-control"
                     />
@@ -76,28 +82,10 @@ const CustomerList = () => {
                         className="form-control"
                     />
                 </div>
-                <div className="col-md-2">
-                    <input
-                        name="fromDate"
-                        type="date"
-                        placeholder="Kayıt Tarihi (Başlangıç)"
-                        value={filters.fromDate}
-                        onChange={handleInputChange}
-                        className="form-control"
-                    />
-                </div>
-                <div className="col-md-2">
-                    <input
-                        name="toDate"
-                        type="date"
-                        placeholder="Kayıt Tarihi (Bitiş)"
-                        value={filters.toDate}
-                        onChange={handleInputChange}
-                        className="form-control"
-                    />
-                </div>
                 <div className="col-md-2 d-grid">
-                    <button className="btn btn-success" onClick={handleAddNew}>Yeni Müşteri Ekle</button>
+                    <button className="btn btn-success" onClick={handleAddNew}>
+                        Yeni Müşteri Ekle
+                    </button>
                 </div>
             </div>
 
@@ -111,38 +99,39 @@ const CustomerList = () => {
                             <th>ID</th>
                             <th>İsim</th>
                             <th>Bölge</th>
-                            <th>Kayıt Tarihi</th>
                             <th>İşlemler</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {customers.length === 0 && (
+                        {customers.length === 0 ? (
                             <tr>
-                                <td colSpan="5" className="text-center p-4">Müşteri bulunamadı.</td>
-                            </tr>
-                        )}
-                        {customers.map((customer) => (
-                            <tr key={customer.id}>
-                                <td>{customer.id}</td>
-                                <td>{customer.name}</td>
-                                <td>{customer.region}</td>
-                                <td>{new Date(customer.registrationDate).toLocaleDateString()}</td>
-                                <td>
-                                    <button
-                                        className="btn btn-sm btn-primary me-2"
-                                        onClick={() => handleEdit(customer)}
-                                    >
-                                        Düzenle
-                                    </button>
-                                    <button
-                                        className="btn btn-sm btn-danger"
-                                        onClick={() => handleDelete(customer.id)}
-                                    >
-                                        Sil
-                                    </button>
+                                <td colSpan="4" className="text-center p-4">
+                                    Müşteri bulunamadı.
                                 </td>
                             </tr>
-                        ))}
+                        ) : (
+                            customers.map((customer) => (
+                                <tr key={customer.id}>
+                                    <td>{customer.id}</td>
+                                    <td>{customer.fullName}</td>
+                                    <td>{customer.region}</td>
+                                    <td>
+                                        <button
+                                            className="btn btn-sm btn-primary me-2"
+                                            onClick={() => handleEdit(customer)}
+                                        >
+                                            Düzenle
+                                        </button>
+                                        <button
+                                            className="btn btn-sm btn-danger"
+                                            onClick={() => handleDelete(customer.id)}
+                                        >
+                                            Sil
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))
+                        )}
                     </tbody>
                 </table>
             </div>
@@ -159,12 +148,18 @@ const CustomerList = () => {
                     <div
                         className="modal-dialog"
                         role="document"
-                        onClick={e => e.stopPropagation()}
+                        onClick={(e) => e.stopPropagation()}
                     >
                         <div className="modal-content">
                             <div className="modal-header">
-                                <h5 className="modal-title">{editingCustomer ? 'Müşteri Düzenle' : 'Yeni Müşteri Ekle'}</h5>
-                                <button type="button" className="btn-close" onClick={() => setShowModal(false)}></button>
+                                <h5 className="modal-title">
+                                    {editingCustomer ? 'Müşteri Düzenle' : 'Yeni Müşteri Ekle'}
+                                </h5>
+                                <button
+                                    type="button"
+                                    className="btn-close"
+                                    onClick={() => setShowModal(false)}
+                                ></button>
                             </div>
                             <div className="modal-body">
                                 <CustomerForm

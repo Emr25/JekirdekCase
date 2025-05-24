@@ -44,9 +44,7 @@ const Header = () => {
                         </Link>
                     </div>
                     <div className="d-flex align-items-center">
-                        <Link to="/card" className="nav-link position-relative me-3 text-secondary">
-                            <FaShoppingCart size={20} />
-                        </Link>
+
 
                         {user ? (
                             <>

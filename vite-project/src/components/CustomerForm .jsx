@@ -2,17 +2,17 @@ import React, { useState, useEffect } from 'react';
 
 const CustomerForm = ({ onSubmit, onClose, initialData }) => {
     const [customer, setCustomer] = useState({
-        name: '',
+        fullName: '',
+        email: '',
         region: '',
-        registrationDate: '',
     });
 
     useEffect(() => {
         if (initialData) {
             setCustomer({
-                name: initialData.name || '',
+                fullName: initialData.fullName || '',
+                email: initialData.email || '',
                 region: initialData.region || '',
-                registrationDate: initialData.registrationDate ? initialData.registrationDate.split('T')[0] : '',
             });
         }
     }, [initialData]);
@@ -24,19 +24,33 @@ const CustomerForm = ({ onSubmit, onClose, initialData }) => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
+        console.log('Gönderilen müşteri:', customer);
         onSubmit(customer);
     };
 
     return (
         <form onSubmit={handleSubmit}>
             <div className="mb-3">
-                <label htmlFor="name" className="form-label">İsim</label>
+                <label htmlFor="fullName" className="form-label">İsim</label>
                 <input
                     type="text"
                     className="form-control"
-                    id="name"
-                    name="name"
-                    value={customer.name}
+                    id="fullName"
+                    name="fullName"
+                    value={customer.fullName}
+                    onChange={handleChange}
+                    required
+                />
+            </div>
+
+            <div className="mb-3">
+                <label htmlFor="email" className="form-label">Email</label>
+                <input
+                    type="email"
+                    className="form-control"
+                    id="email"
+                    name="email"
+                    value={customer.email}
                     onChange={handleChange}
                     required
                 />
@@ -50,19 +64,6 @@ const CustomerForm = ({ onSubmit, onClose, initialData }) => {
                     id="region"
                     name="region"
                     value={customer.region}
-                    onChange={handleChange}
-                    required
-                />
-            </div>
-
-            <div className="mb-3">
-                <label htmlFor="registrationDate" className="form-label">Kayıt Tarihi</label>
-                <input
-                    type="date"
-                    className="form-control"
-                    id="registrationDate"
-                    name="registrationDate"
-                    value={customer.registrationDate}
                     onChange={handleChange}
                     required
                 />
